@@ -37,7 +37,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
 
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -45,13 +45,15 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] float playTime = 50;
 
-    [Header("GameObject Binding")]
-    [SerializeField] CoinSpawner spawner;
+    [Header("GameObject Binding")] [SerializeField]
+    CoinSpawner spawner;
+
     [SerializeField] Player player;
 
     // UI
-	[Header("UI Binding")]
-    [SerializeField] GameObject gameView;
+    [Header("UI Binding")] [SerializeField]
+    GameObject gameView;
+
     [SerializeField] GameObject resultView;
     [SerializeField] Text timeText;
     [SerializeField] Text coinText;
@@ -70,55 +72,55 @@ public class GameController : MonoBehaviour
         StartGame();
     }
 
-	void SetupPlayer()
-	{
+    void SetupPlayer()
+    {
         player.onCollectCoin = () =>
         {
-			if(isPlaying)
-			{
+            if (isPlaying)
+            {
                 AddCoin();
-			}
+            }
         };
-	}
+    }
 
     // Update is called once per frame
     void Update()
     {
-		if(isPlaying)
-		{
+        if (isPlaying)
+        {
             HandlePlayLogic();
         }
     }
 
-	void HandlePlayLogic()
-	{
+    void HandlePlayLogic()
+    {
         time -= Time.deltaTime;
-		if(time < 0)
-		{
+        if (time < 0)
+        {
             EndGame();
             return;
-		}
+        }
 
         CheckAndRespawnCoin();
         UpdateTimeValue();
-	}
+    }
 
-	void Reset()
-	{
+    void Reset()
+    {
         coin = 0;
-		time = playTime + 0.3f;
+        time = playTime + 0.3f;
         waitForNewCoin = false;
     }
 
-	public void StartGame()
-	{
+    public void StartGame()
+    {
         Reset();
         ShowGameView();
         spawner.ClearCoins();
         spawner.SpawnCoins();
 
         isPlaying = true;
-	}
+    }
 
     public void EndGame()
     {
@@ -126,48 +128,48 @@ public class GameController : MonoBehaviour
         ShowResultView();
     }
 
-	#region Coin Logic
+    #region Coin Logic
 
-	void CheckAndRespawnCoin()
-	{
-		//Debug.Log("Coin Count=" + spawner.GetCoinCount());
-		if (spawner.GetCoinCount() == 0 && waitForNewCoin == false)
-		{
-			waitForNewCoin = true;
-            
-            StartCoroutine(LateSpawnCoins());
-		}
-	}
-
-    IEnumerator LateSpawnCoins()
-	{
-        yield return new WaitForSeconds(1.0f);
-
-		//
-        if (isPlaying != false && spawner.GetCoinCount() == 0)
+    void CheckAndRespawnCoin()
+    {
+        //Debug.Log("Coin Count=" + spawner.GetCoinCount());
+        if (spawner.GetCoinCount() == 0 && waitForNewCoin == false)
         {
-            spawner.SpawnCoins();
-            waitForNewCoin = false;	// Reset the flag
+            waitForNewCoin = true;
+
+            StartCoroutine(LateSpawnCoins());
         }
     }
 
-	public void AddCoin()
-	{
+    IEnumerator LateSpawnCoins()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        //
+        if (isPlaying != false && spawner.GetCoinCount() == 0)
+        {
+            spawner.SpawnCoins();
+            waitForNewCoin = false; // Reset the flag
+        }
+    }
+
+    public void AddCoin()
+    {
         coin++;
         UpdateCoinValue();
-	}
+    }
 
-	#endregion
+    #endregion
 
-	#region UI Logic
+    #region UI Logic
 
-	public void ShowGameView()
-	{
+    public void ShowGameView()
+    {
         UpdateTimeValue();
         UpdateCoinValue();
         gameView.SetActive(true);
         resultView.SetActive(false);
-	}
+    }
 
     public void ShowResultView()
     {
@@ -178,15 +180,14 @@ public class GameController : MonoBehaviour
     }
 
     void UpdateTimeValue()
-	{
+    {
         timeText.text = time.ToString("00");
-	}
+    }
 
-	void UpdateCoinValue()
-	{
+    void UpdateCoinValue()
+    {
         coinText.text = coin.ToString();
     }
 
-	#endregion
-
+    #endregion
 }

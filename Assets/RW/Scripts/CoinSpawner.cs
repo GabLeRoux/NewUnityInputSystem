@@ -47,94 +47,94 @@ public class CoinSpawner : MonoBehaviour
 
     protected List<Vector3> spawnLocationList = new List<Vector3>();
 
-	void Awake()
-	{
+    void Awake()
+    {
         for (int i = 0; i < transform.childCount; i++)
         {
             Transform child = transform.GetChild(i);
             child.gameObject.SetActive(false);
-            spawnLocationList.Add(child.position);	// save the world position
+            spawnLocationList.Add(child.position); // save the world position
         }
-	}
+    }
 
-	void Start()
-	{
-		if(spawnWhenStart)
-		{
+    void Start()
+    {
+        if (spawnWhenStart)
+        {
             SpawnCoins();
-		}
-	}
+        }
+    }
 
     public int GetCoinCount()
-	{
+    {
         Coin[] coins = transform.GetComponentsInChildren<Coin>();
 
         return coins.Length;
     }
 
 
-	public void ClearCoins()
-	{
+    public void ClearCoins()
+    {
         Coin[] coins = transform.GetComponentsInChildren<Coin>();
         foreach (Coin coin in coins)
         {
-			Destroy(coin.gameObject);
+            Destroy(coin.gameObject);
         }
     }
 
-	List<int> GetRandomPosIndex()
-	{
+    List<int> GetRandomPosIndex()
+    {
         List<int> result = new List<int>();
-		for(int i=0; i<10; i++)
-		{
+        for (int i = 0; i < 10; i++)
+        {
             int index = Random.Range(0, spawnLocationList.Count);
-			if(result.Contains(index) == false)
-			{
+            if (result.Contains(index) == false)
+            {
                 result.Add(index);
-			}
-		}
+            }
+        }
 
-		// keep only 4
-		if(result.Count <= 4)
-		{
+        // keep only 4
+        if (result.Count <= 4)
+        {
             return result;
-		}
+        }
 
         return result.GetRange(0, 4);
-	}
+    }
 
-	protected List<Vector3> GetRandomPosList()
-	{
+    protected List<Vector3> GetRandomPosList()
+    {
         List<int> posIndexList = GetRandomPosIndex();
 
         List<Vector3> randomPosList = new List<Vector3>();
 
-		foreach(int index in posIndexList) {
+        foreach (int index in posIndexList)
+        {
             randomPosList.Add(spawnLocationList[index]);
-
         }
 
         return randomPosList;
     }
 
-	public void SpawnCoins()
-	{
+    public void SpawnCoins()
+    {
         List<Vector3> posList = GetRandomPosList();
 
         foreach (Vector3 pos in posList)
-		{
+        {
             SpawnCoin(pos);
         }
-	}
+    }
 
 
-	void SpawnCoin(Vector3 worldPosition)
-	{
+    void SpawnCoin(Vector3 worldPosition)
+    {
         GameObject newCoin = Instantiate(coinPrefab);
-		newCoin.name = "Coin";
+        newCoin.name = "Coin";
 
         Transform tf = newCoin.transform;
         tf.SetParent(transform);
         tf.position = worldPosition;
-	}
+    }
 }

@@ -42,193 +42,191 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-	// Constant
-	const float jumpCheckPreventionTime = 0.5f;
+    // Constant
+    const float jumpCheckPreventionTime = 0.5f;
 
-	// Callback
-	public delegate void CollectCoinCallback();
-	public CollectCoinCallback onCollectCoin;
+    // Callback
+    public delegate void CollectCoinCallback();
 
-	// Public
-	[Header("Physic Setting")]
-	public LayerMask groundLayerMask;
+    public CollectCoinCallback onCollectCoin;
 
-	[Header("Move & Jump Setting")]
-	public float moveSpeed = 10;
-	public float fallWeight = 5.0f;
-	public float jumpWeight = 0.5f;
-	public float jumpVelocity = 100.0f;
+    // Public
+    [Header("Physic Setting")] public LayerMask groundLayerMask;
 
-	// Internal Data
+    [Header("Move & Jump Setting")] public float moveSpeed = 10;
+    public float fallWeight = 5.0f;
+    public float jumpWeight = 0.5f;
+    public float jumpVelocity = 100.0f;
 
-	// State of the player (jumping or not)
-	protected bool jumping = false;			// state of player (jumping or not )
+    // Internal Data
 
-	//
-	protected Vector3 moveVec = Vector3.zero; // movement speed of player
-	protected float jumpTimestamp;			// start jump timestamp
+    // State of the player (jumping or not)
+    protected bool jumping = false; // state of player (jumping or not )
 
-	protected Animator animator;				// reference to the animator
-	protected Rigidbody rigidbody;			// reference to the rigidbody
+    //
+    protected Vector3 moveVec = Vector3.zero; // movement speed of player
+    protected float jumpTimestamp; // start jump timestamp
 
+    protected Animator animator; // reference to the animator
+    protected Rigidbody rigidbody; // reference to the rigidbody
 
 
-	// Start is called before the first frame update
-	private void Awake()
-	{
-		animator = GetComponentInChildren<Animator>();
-		rigidbody = GetComponent<Rigidbody>();
-	}
-	
-	void UpdateWhenJumping()
-	{
-		bool isFalling = rigidbody.velocity.y <= 0;
-
-		float weight = isFalling ? fallWeight : jumpWeight;
-
-		// Assign new velocity
-		rigidbody.velocity = new Vector3(moveVec.x * moveSpeed, rigidbody.velocity.y, moveVec.z * moveSpeed);
-		rigidbody.velocity += Vector3.up * Physics.gravity.y * weight * Time.deltaTime;
-
-		GroundCheck();
-	}
-
-	void UpdateWhenGrounded()
-	{
-		// 1 
-		rigidbody.velocity = moveVec * moveSpeed;
-
-		// 2
-		if (moveVec != Vector3.zero)
-		{
-			transform.LookAt(this.transform.position + moveVec.normalized);
-		}
-
-		// 3
-		CheckShouldFall();
-	}
-
-	private void FixedUpdate()
-	{
-		if (jumping == false)
-		{
-			// 2
-			UpdateWhenGrounded();
-		}
-		else
-		{
-			// 3
-			UpdateWhenJumping();
-		}
-	}
-
-	// Update is called once per frame
-	void Update()
-	{
-		UpdateAnimation();
-	}
-
-	public void OnJump()
+    // Start is called before the first frame update
+    private void Awake()
     {
-		HandleJump();
+        animator = GetComponentInChildren<Animator>();
+        rigidbody = GetComponent<Rigidbody>();
     }
 
-	public void OnMove(InputValue input)
+    void UpdateWhenJumping()
     {
-		Vector2 inputVec = input.Get<Vector2>();
+        bool isFalling = rigidbody.velocity.y <= 0;
 
-		moveVec = new Vector3(inputVec.x, 0, inputVec.y);
+        float weight = isFalling ? fallWeight : jumpWeight;
+
+        // Assign new velocity
+        rigidbody.velocity = new Vector3(moveVec.x * moveSpeed, rigidbody.velocity.y, moveVec.z * moveSpeed);
+        rigidbody.velocity += Vector3.up * Physics.gravity.y * weight * Time.deltaTime;
+
+        GroundCheck();
     }
 
-	#region Jump & Fall & Ground Logic
+    void UpdateWhenGrounded()
+    {
+        // 1 
+        rigidbody.velocity = moveVec * moveSpeed;
 
-	protected bool HandleJump()
-	{
-		if (jumping)
-		{
-			return false;
-		}
+        // 2
+        if (moveVec != Vector3.zero)
+        {
+            transform.LookAt(this.transform.position + moveVec.normalized);
+        }
 
-		jumping = true;
-		jumpTimestamp = Time.time;
-		rigidbody.velocity = new Vector3(0, jumpVelocity, 0); // Set initial jump velocity
+        // 3
+        CheckShouldFall();
+    }
 
-		return true;
-	}
+    private void FixedUpdate()
+    {
+        if (jumping == false)
+        {
+            // 2
+            UpdateWhenGrounded();
+        }
+        else
+        {
+            // 3
+            UpdateWhenJumping();
+        }
+    }
 
-	void CheckShouldFall()
-	{
-		if(jumping)
-		{
-			return;	// No need to check if in the air
-		}
+    // Update is called once per frame
+    void Update()
+    {
+        UpdateAnimation();
+    }
 
-		bool hasHit = Physics.CheckSphere(transform.position, 0.1f, groundLayerMask);
+    public void OnJump()
+    {
+        HandleJump();
+    }
 
-		if (hasHit == false)
-		{
-			jumping = true;
-		}
-	}
+    public void OnMove(InputValue input)
+    {
+        Vector2 inputVec = input.Get<Vector2>();
 
-	void GroundCheck()
-	{
-		if(jumping == false)
-		{
-			return;	// No need to check
-		}
+        moveVec = new Vector3(inputVec.x, 0, inputVec.y);
+    }
 
-		if (Time.time < jumpTimestamp + jumpCheckPreventionTime)
-		{
-			return;
-		}
+    #region Jump & Fall & Ground Logic
 
-		bool hasHit = Physics.CheckSphere(transform.position, 0.1f, groundLayerMask);
-		
-		if(hasHit)
-		{
-			jumping = false;
-		}
-	}
+    protected bool HandleJump()
+    {
+        if (jumping)
+        {
+            return false;
+        }
 
-	#endregion
+        jumping = true;
+        jumpTimestamp = Time.time;
+        rigidbody.velocity = new Vector3(0, jumpVelocity, 0); // Set initial jump velocity
 
-	void UpdateAnimation()
-	{
-		if (animator == null)
-		{
-			return;
-		}
+        return true;
+    }
 
-		animator.SetBool("jumping", jumping);
-		animator.SetFloat("moveSpeed", moveVec.magnitude);
-	}
+    void CheckShouldFall()
+    {
+        if (jumping)
+        {
+            return; // No need to check if in the air
+        }
 
-	#region Coin Collect Logic
+        bool hasHit = Physics.CheckSphere(transform.position, 0.1f, groundLayerMask);
 
-	private void OnTriggerEnter(Collider other)
-	{
-		if (other.transform.tag == "Coin")
-		{
-			HandleCoinCollect(other);
-		}
-	}
+        if (hasHit == false)
+        {
+            jumping = true;
+        }
+    }
 
-	void HandleCoinCollect(Collider collision)
-	{
-		Coin coin = collision.transform.GetComponent<Coin>();
-		if(coin == null)
-		{
-			return;
-		}
-		coin.Collect();
+    void GroundCheck()
+    {
+        if (jumping == false)
+        {
+            return; // No need to check
+        }
 
-		if(onCollectCoin != null)
-		{
-			onCollectCoin();
-		}
-	}
+        if (Time.time < jumpTimestamp + jumpCheckPreventionTime)
+        {
+            return;
+        }
 
-	#endregion
+        bool hasHit = Physics.CheckSphere(transform.position, 0.1f, groundLayerMask);
 
+        if (hasHit)
+        {
+            jumping = false;
+        }
+    }
+
+    #endregion
+
+    void UpdateAnimation()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.SetBool("jumping", jumping);
+        animator.SetFloat("moveSpeed", moveVec.magnitude);
+    }
+
+    #region Coin Collect Logic
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.tag == "Coin")
+        {
+            HandleCoinCollect(other);
+        }
+    }
+
+    void HandleCoinCollect(Collider collision)
+    {
+        Coin coin = collision.transform.GetComponent<Coin>();
+        if (coin == null)
+        {
+            return;
+        }
+
+        coin.Collect();
+
+        if (onCollectCoin != null)
+        {
+            onCollectCoin();
+        }
+    }
+
+    #endregion
 }

@@ -50,20 +50,21 @@ public class Coin : MonoBehaviour
         transform.eulerAngles += rotateSpeed * new Vector3(0, 1, 0) * Time.deltaTime;
     }
 
-	public void Collect()
-	{
+    public void Collect()
+    {
         SpawnVFXParticle();
         Destroy(gameObject);
-	}
+    }
 
-	void SpawnVFXParticle()
-	{
-		if(effectParticle == null)
-		{
+    void SpawnVFXParticle()
+    {
+        if (effectParticle == null)
+        {
             return;
-		}
+        }
+
         GameObject newParticle = Instantiate(effectParticle);
         Transform tf = newParticle.transform;
         tf.position = transform.position + new Vector3(0, 2, 0);
-	}
+    }
 }
